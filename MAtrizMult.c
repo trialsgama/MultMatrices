@@ -90,7 +90,7 @@ int main(int argc, char * argv[]) {
     MPI_Gather(&subFinal, // Dato que envia cada proceso
             1, // Numero de elementos que se envian
             MPI_LONG, // Tipo del dato que se envia
-            C, // Matriz en el que se recolectan los datos
+            C[0], // Matriz en el que se recolectan los datos
             1, // Numero de datos que se esperan recibir por cada proceso
             MPI_LONG, // Tipo del dato que se recibira
             0, // proceso que va a recibir los datos
