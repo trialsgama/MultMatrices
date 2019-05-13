@@ -1,10 +1,8 @@
 #include <stdio.h>
-#include <mpi.h>
-#include <stdlib.h>
-#include <math.h>
 #include <time.h>
-
-
+#include <mpi.h>
+#include <math.h>
+#include <stdlib.h>
 
 
 int main(int argc, char * argv[]) {
@@ -12,18 +10,16 @@ int main(int argc, char * argv[]) {
     int **A,// Matriz A 
          **B,// Matriz B
          **C;// Matriz C que sera la matriz resultado
-         
+    
     double tInicio, // Tiempo que comienza la ejecucion
            tfin; // Tiempo que termina el procesamiento
-    long *filaloc, // fila local donde se almacena los resultados
-	subFinal;
 
 
     MPI_Init(&argc,&argv);
     MPI_Comm_size(MPI_COMM_WORLD, &numeroProc);
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
 
-    printf("[+] La matriz sera una matriz cuadrada de %i filas y columnas", numeroProc);
+    
 
     A = (int **)malloc(numeroProc * sizeof(int*)); //Creando la reservacion de filas en base a procesos
     B = (int **)malloc(numeroProc * sizeof(int*)); //Creando la reservacion de filas en base a procesos
@@ -46,24 +42,22 @@ int main(int argc, char * argv[]) {
                 B[i][j] = rand() % 1000;
             }
         }
+        printf("[+] La matriz sera una matriz cuadrada de %i filas y columnas", numeroProc);
     } // Termina el trozo de codigo que ejecuta solo 0
 
-    filaloc = (long *) malloc(sizeof(numeroProc)); // Reservando espacio para la fila local que guardara cada nodo
+    
 
-    //La funcion Scatter me permite compartir la matriz entre los procesos, separandola por filas
-    MPI_Scatter(A,//Matriz que se compartira entre los nodos
-    numeroProc, // Numero de columnas a compartir
-    MPI_LONG, // Tipo de dato
-    filaloc, // Vector que almacena los datos
-    numeroProc, // Numero de columnas a compartir
-    MPI_LONG, // Dato a recibir
+    
+    MPI_Bcast(A,//Dato a compartir
+    numeroProc*numeroProc, //Numero de elementos que se van a enviar y recibir
+    MPI_LONG, // Tipo de dato que se va a compartir
     0, // Proceso raiz que envia los datos
-    MPI_COMM_WORLD); // Comunicador utilizado
+    MPI_COMM_WORLD);
 
 
     //Vamos a compartir la matriz B entre todos los procesos
     MPI_Bcast(B,//Dato a compartir
-    numeroProc, //Numero de elementos que se van a enviar y recibir
+    numeroProc*numeroProc, //Numero de elementos que se van a enviar y recibir
     MPI_LONG, // Tipo de dato que se va a compartir
     0, // Proceso raiz que envia los datos
     MPI_COMM_WORLD);
@@ -73,10 +67,13 @@ int main(int argc, char * argv[]) {
     //Inicio de medicion de tiempo
     tInicio = MPI_Wtime();
 
-    subFinal = 0;
+    long subFinal = 0;
     for (unsigned int i=0; i < numeroProc; i++){
         for (unsigned int j=0 ; j < numeroProc; j++){
-            subFinal += filaloc[i] * B[i][j];
+            for (unsigned int k=0 ; k < numeroProc; k++){
+                C[i][j] +=A [i][k] * B[i][j];
+            }
+            
         }
     }
 
@@ -85,18 +82,6 @@ int main(int argc, char * argv[]) {
     // fin de medicion de tiempo
     tfin = MPI_Wtime();
 
-    // Recogemos los datos de la multiplicacion, por cada proceso sera un escalar
-    // y se recoge en un vector, Gather se asegura de que la recoleccion se haga
-    // en el mismo orden en el que se hace el Scatter, con lo que cada escalar
-    // acaba en su posicion correspondiente del vector.
-    MPI_Gather(&subFinal, // Dato que envia cada proceso
-            1, // Numero de elementos que se envian
-            MPI_LONG, // Tipo del dato que se envia
-            C, // Matriz en el que se recolectan los datos
-            1, // Numero de datos que se esperan recibir por cada proceso
-            MPI_LONG, // Tipo del dato que se recibira
-            0, // proceso que va a recibir los datos
-            MPI_COMM_WORLD); // Canal de comunicacion (Comunicador Global)
  
     // Terminamos la ejecucion de los procesos, despues de esto solo existira
     // el proceso 0
@@ -104,15 +89,16 @@ int main(int argc, char * argv[]) {
     // de codigo despues de "Finalize", es conveniente asegurarnos con una
     // condicion si vamos a ejecutar mas codigo (Por ejemplo, con "if(rank==0)".
 
-    
-    MPI_Finalize();
- 
-    for (int i=0;i<numeroProc;i++){
+     for (int i=0;i<numeroProc;i++){
         for(int j=0;j<numeroProc;j++){
             printf("%d\t",C[i][j]);
         }   
         printf("\n");
     }
+    
+    MPI_Finalize();
+ 
+   
      
     
 
