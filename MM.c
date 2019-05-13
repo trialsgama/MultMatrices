@@ -9,7 +9,8 @@ int main(int argc, char * argv[]) {
     int numeroProc,id;
     int **A,// Matriz A 
          **B,// Matriz B
-         **C;// Matriz C que sera la matriz resultado
+         **C,// Matriz C que sera la matriz resultado
+         resultado;
     
     double tInicio, // Tiempo que comienza la ejecucion
            tfin; // Tiempo que termina el procesamiento
@@ -38,8 +39,8 @@ int main(int argc, char * argv[]) {
         for (unsigned int i = 0; i < numeroProc; i++) {
             for (unsigned int j = 0; j < numeroProc; j++) {
   
-                A[i][j] = rand() % 1000;
-                B[i][j] = rand() % 1000;
+                A[i][j] = rand() % 100;
+                B[i][j] = rand() % 100;
             }
         }
         printf("[+] La matriz sera una matriz cuadrada de %i filas y columnas", numeroProc);
@@ -50,7 +51,7 @@ int main(int argc, char * argv[]) {
     
     MPI_Bcast(A,//Dato a compartir
     numeroProc*numeroProc, //Numero de elementos que se van a enviar y recibir
-    MPI_LONG, // Tipo de dato que se va a compartir
+    MPI_INT, // Tipo de dato que se va a compartir
     0, // Proceso raiz que envia los datos
     MPI_COMM_WORLD);
 
@@ -58,7 +59,7 @@ int main(int argc, char * argv[]) {
     //Vamos a compartir la matriz B entre todos los procesos
     MPI_Bcast(B,//Dato a compartir
     numeroProc*numeroProc, //Numero de elementos que se van a enviar y recibir
-    MPI_LONG, // Tipo de dato que se va a compartir
+    MPI_INT, // Tipo de dato que se va a compartir
     0, // Proceso raiz que envia los datos
     MPI_COMM_WORLD);
 
@@ -67,11 +68,11 @@ int main(int argc, char * argv[]) {
     //Inicio de medicion de tiempo
     tInicio = MPI_Wtime();
 
-    long subFinal = 0;
+    resultado = 0;
     for (unsigned int i=0; i < numeroProc; i++){
         for (unsigned int j=0 ; j < numeroProc; j++){
             for (unsigned int k=0 ; k < numeroProc; k++){
-                C[i][j] +=A [i][k] * B[i][j];
+                 resultado +=A [i][k] * B[k][j];
             }
             
         }
@@ -82,7 +83,15 @@ int main(int argc, char * argv[]) {
     // fin de medicion de tiempo
     tfin = MPI_Wtime();
 
- 
+    MPI_Gather(&resultado, // Dato que envia cada proceso
+            1, // Numero de elementos que se envian
+            MPI_INT, // Tipo del dato que se envia
+            C, // Matriz en el que se recolectan los datos
+            1, // Numero de datos que se esperan recibir por cada proceso
+            MPI_INT, // Tipo del dato que se recibira
+            0, // proceso que va a recibir los datos
+            MPI_COMM_WORLD); // Canal de comunicacion (Comunicador Global)
+    
     // Terminamos la ejecucion de los procesos, despues de esto solo existira
     // el proceso 0
     // Ojo! Esto no significa que los demas procesos no ejecuten el resto
@@ -99,7 +108,7 @@ int main(int argc, char * argv[]) {
     MPI_Finalize();
  
    
-     
+   
     
 
 }
