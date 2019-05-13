@@ -1,19 +1,22 @@
 #include <stdio.h>
-#include <conio.h>
 #include <mpi.h>
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <mpi.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+
+
 
 int main(int argc, char * argv[]) {
     int numeroProc,id;
     int **A,// Matriz A 
          **B,// Matriz B
-         **C,// Matriz C que sera la matriz resultado
-         *filaloc; // fila local donde se almacena los resultados
+         **C;// Matriz C que sera la matriz resultado
+         
     double tInicio, // Tiempo que comienza la ejecucion
            tfin; // Tiempo que termina el procesamiento
+    long *filaloc, // fila local donde se almacena los resultados
+	subFinal;
 
 
     MPI_Init(&argc,&argv);
@@ -45,7 +48,7 @@ int main(int argc, char * argv[]) {
         }
     } // Termina el trozo de codigo que ejecuta solo 0
 
-    filaloc = new long [numeroProc]; // Reservando espacio para la fila local que guardara cada nodo
+    filaloc = (long *) malloc(sizeof(numeroProc)); // Reservando espacio para la fila local que guardara cada nodo
 
     //La funcion Scatter me permite compartir la matriz entre los procesos, separandola por filas
     MPI_Scatter(A,//Matriz que se compartira entre los nodos
@@ -70,10 +73,10 @@ int main(int argc, char * argv[]) {
     //Inicio de medicion de tiempo
     tInicio = MPI_Wtime();
 
-    long subfinal = 0;
+    subFinal = 0;
     for (unsigned int i=0; i < numeroProc; i++){
         for (unsigned int j=0 ; j < numeroProc; j++){
-            subfinal += filaloc[i] * B[i][j];
+            subFinal += filaloc[i] * B[i][j];
         }
     }
 
