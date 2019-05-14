@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 //Predefino las matrices
-const int n = 10;
+const int n = 4;
 
 int A[n][n];
 int B[n][n];
@@ -42,7 +42,7 @@ int main(int argc, char * argv[]) {
 	for(unsigned int i=0;i<n;i++) {
 		for(unsigned int j=0;j<n;j++){
 			for(unsigned int k=0;k<n;k++){
-			Prueba[i][j] += A[i][k] +  B[k][j];
+			Prueba[i][j] += A[i][k] *  B[k][j];
 			}
 		}
 	}
@@ -71,10 +71,10 @@ int main(int argc, char * argv[]) {
     //Inicio de medicion de tiempo
     tInicio = MPI_Wtime();
 
-
+    sum=0;		
     for (unsigned int i=0; i < n; i ++){
         for (unsigned int j=0 ; j < n; j ++){
-                 sum = sum + a[j] * B[j][i]; //Recorro la matriz B y la multiplico por los valores de la variable local y sumo a sum
+		sum +=  a[j] * B[j][i]; //Recorro la matriz B y la multiplico por los valores de la variable local y sumo a sum
 	        }
 	c[i]=sum; // asigno el valor de sum en esa pasada al vector auxiliar c
 	sum=0; // Dejo sum en 0 para la proxima pasada
@@ -129,6 +129,20 @@ int main(int argc, char * argv[]) {
 		       }   
       		printf("\n");
     		}
+    printf("La matriz Prueba es:\n");
+    for(unsigned int i=0;i<n;i++) {
+                for(unsigned int j=0;j<n;j++){
+                        printf("%d\t",Prueba[i][j]);
+                        }
+		printf("\n");
+                }
+
+
+
+
+
+
+
     for(unsigned int i=0;i<n;i++) {
 		for(unsigned int j=0;j<n;j++){
 			
@@ -139,6 +153,7 @@ int main(int argc, char * argv[]) {
 		}
 	}
     //Mostramos el tiempo tardado	
+    printf("[+] Coinciden... :)\n");
     printf("El tiempo tardado es %f segundos\n", tfin - tInicio);
 
     }
