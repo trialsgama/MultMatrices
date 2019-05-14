@@ -129,6 +129,15 @@ int main(int argc, char * argv[]) {
 		       }   
       		printf("\n");
     		}
+    for(unsigned int i=0;i<n;i++) {
+		for(unsigned int j=0;j<n;j++){
+			
+			if(Prueba[i][j] != C[i][j]) {
+				printf("Son distintas");
+				return 0;
+			}
+		}
+	}
     //Mostramos el tiempo tardado	
     printf("El tiempo tardado es %f segundos\n", tfin - tInicio);
 
