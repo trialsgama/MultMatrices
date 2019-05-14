@@ -112,7 +112,7 @@ int main(int argc, char * argv[]) {
 		       }   
       		printf("\n");
     		}  
-   Mostramos matriz C	
+   //Mostramos matriz C	
     printf("La matriz C es:\n");
 		
     	 for (int i=0;i<n;i ++){
