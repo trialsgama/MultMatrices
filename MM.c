@@ -108,7 +108,7 @@ int main(int argc, char * argv[]) {
 		
     	 for (int i=0;i<n;i ++){
        		for(int j=0;j<n;j ++){
-        	   printf("%d\t",C[i][j]);
+        	   printf("%d\t",B[i][j]);
 		       }   
       		printf("\n");
     		}  
