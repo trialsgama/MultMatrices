@@ -10,6 +10,7 @@ const int n = 10;
 int A[n][n];
 int B[n][n];
 int C[n][n];
+int Prueba[n][n];
 int a[n],c[n];
  
 
@@ -38,6 +39,13 @@ int main(int argc, char * argv[]) {
             }
         }
 
+	for(unsigned int i=0;i<n;i++) {
+		for(unsigned int j=0;j<n;j++){
+			for(unsigned int k=0;k<n;k++){
+			Prueba[i][j] += A[i][k] +  B[k][j];
+			}
+		}
+	}
    
 
    //Compartimos la matriz A entre los nodos	
